@@ -1,3 +1,21 @@
+import os
+from http.server import HTTPServer, BaseHTTPRequestHandler
+import threading
+
+# Dummy HTTP server to satisfy Render's health check requirement
+class HealthCheckHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"Jagaban Bot is live!")
+
+def run_web_server():
+    port = int(os.environ.get("PORT", 10000))
+    server = HTTPServer(('0.0.0.0', port), HealthCheckHandler)
+    server.serve_forever()
+
+# Start the web server in a background thread so it doesn't block the bot
+threading.Thread(target=run_web_server, daemon=True).start()
 import telebot
 import time
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
