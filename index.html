@@ -14,7 +14,7 @@
 <style>
 :root {
   --bg: #030712;
-  --panel: rgba(13, 19, 34, 0.92);
+  --panel: rgba(13, 19, 34, 0.95);
   --border: rgba(245, 158, 11, 0.4);
   --gold: #f59e0b;
   --neon: #10b981;
@@ -24,63 +24,55 @@
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; margin: 0; background: var(--bg); color: var(--text); font-family: "Inter", sans-serif; user-select: none; overflow: hidden; }
-#app { height: 100dvh; max-width: 480px; margin: auto; padding: env(safe-area-inset-top) 8px env(safe-area-inset-bottom); display: flex; flex-direction: column; gap: 6px; }
+html, body { width: 100%; height: 100%; margin: 0; background: var(--bg); color: var(--text); font-family: "Inter", sans-serif; user-select: none; overflow-x: hidden; }
+#app { width: 100%; max-width: 480px; min-height: 100vh; margin: auto; padding: 8px; display: flex; flex-direction: column; gap: 8px; }
 .hidden { display: none !important; }
-.scr { flex: 1; display: flex; flex-direction: column; gap: 6px; min-height: 0; padding: 6px 0; }
+.scr { width: 100%; display: flex; flex-direction: column; gap: 8px; padding-bottom: 20px; }
 
-.panel { background: var(--panel); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 14px; padding: 10px; box-shadow: 0 8px 32px rgba(0,0,0,0.85); position: relative; overflow: hidden; }
-.panel::before { content: ""; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--gold); }
-h1 { font-family: "Rajdhani", sans-serif; font-size: 22px; margin: 0; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--gold); }
-h2 { font-family: "Rajdhani", sans-serif; font-size: 14px; margin: 0 0 4px; font-weight: 800; color: var(--gold); letter-spacing: 0.05em; text-transform: uppercase; }
-p { margin: 0; font-size: 11px; line-height: 1.35; color: #94a3b8; }
+.panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.9); position: relative; }
+h1 { font-family: "Rajdhani", sans-serif; font-size: 20px; margin: 0; font-weight: 800; color: var(--gold); text-transform: uppercase; }
+h2 { font-family: "Rajdhani", sans-serif; font-size: 14px; margin: 0 0 4px; font-weight: 800; color: var(--gold); text-transform: uppercase; }
+p { margin: 0; font-size: 11px; line-height: 1.4; color: #94a3b8; }
 
 /* NATIONAL VITAL SIGNS BAR */
-.vitals-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-top: 4px; }
-.v-box { background: #000; border: 1px solid var(--border); border-radius: 8px; padding: 4px; text-align: center; }
+.vitals-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-top: 6px; }
+.v-box { background: #000; border: 1px solid var(--border); border-radius: 6px; padding: 4px 2px; text-align: center; }
 .v-box small { font-size: 7px; color: var(--dim); text-transform: uppercase; display: block; font-weight: 700; }
 .v-box div { font-family: "Rajdhani", sans-serif; font-weight: 800; font-size: 11px; color: var(--neon); }
 .v-box.warn div { color: var(--red); animation: pulse 0.7s infinite alternate; }
 @keyframes pulse { from { opacity: 1; } to { opacity: 0.3; } }
 
-/* 3D MOTORCADE VIEWPORT */
-#stage-3d { position: relative; height: 21dvh; min-height: 120px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); background: #000; }
+/* 3D MOTORCADE VIEWPORT (FIXED HEIGHT TO PREVENT BLACK SCREEN) */
+#stage-3d { width: 100%; height: 140px; position: relative; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); background: #000; }
 #canvas3d { width: 100%; height: 100%; display: block; }
-.stage-tag { position: absolute; left: 8px; top: 6px; font-family: "Rajdhani", sans-serif; font-size: 10px; color: var(--gold); background: rgba(3,7,18,0.85); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); letter-spacing: 0.05em; }
+.stage-tag { position: absolute; left: 8px; top: 6px; font-family: "Rajdhani", sans-serif; font-size: 9px; color: var(--gold); background: rgba(3,7,18,0.9); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); }
 
 /* TAB CONTROLS */
-.tab-panel { flex: 1; overflow-y: auto; min-height: 0; display: flex; flex-direction: column; gap: 6px; }
-.opt-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: left; padding: 9px 11px; border-radius: 10px; background: #0d1322; border: 1px solid var(--border); color: var(--text); font: inherit; cursor: pointer; margin-top: 4px; transition: all 0.15s ease; }
-.opt-btn:active { transform: scale(0.98); border-color: var(--gold); box-shadow: 0 0 12px rgba(245,158,11,0.3); }
-.opt-btn b { font-family: "Rajdhani", sans-serif; font-size: 13px; color: var(--gold); display: block; letter-spacing: 0.02em; }
+.tab-panel { display: flex; flex-direction: column; gap: 6px; }
+.opt-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: left; padding: 10px; border-radius: 8px; background: #0d1322; border: 1px solid var(--border); color: var(--text); font: inherit; cursor: pointer; margin-top: 4px; }
+.opt-btn:active { transform: scale(0.98); border-color: var(--gold); }
+.opt-btn b { font-family: "Rajdhani", sans-serif; font-size: 13px; color: var(--gold); display: block; }
 .opt-btn span { font-size: 10px; color: var(--dim); }
 
-.btn { width: 100%; border: 0; border-radius: 10px; padding: 11px; font-family: "Rajdhani", sans-serif; font-weight: 800; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; background: var(--gold); color: #030712; cursor: pointer; box-shadow: 0 4px 15px rgba(245,158,11,0.3); transition: all 0.1s; }
+.btn { width: 100%; border: 0; border-radius: 8px; padding: 12px; font-family: "Rajdhani", sans-serif; font-weight: 800; font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase; background: var(--gold); color: #030712; cursor: pointer; }
 .btn:active { transform: scale(0.97); }
-.btn.alt { background: #111827; color: var(--text); border: 1px solid var(--border); box-shadow: none; }
+.btn.alt { background: #111827; color: var(--text); border: 1px solid var(--border); }
 
-nav { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
-nav button { border: 1px solid var(--border); background: var(--panel); color: var(--dim); border-radius: 8px; padding: 8px 0; font-family: "Rajdhani", sans-serif; font-size: 9px; font-weight: 800; text-transform: uppercase; cursor: pointer; transition: all 0.15s; }
+nav { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-top: 4px; }
+nav button { border: 1px solid var(--border); background: var(--panel); color: var(--dim); border-radius: 8px; padding: 8px 0; font-family: "Rajdhani", sans-serif; font-size: 9px; font-weight: 800; text-transform: uppercase; cursor: pointer; }
 nav button.on { background: var(--gold); color: #030712; border-color: var(--gold); }
 
 /* TOAST NOTIFICATIONS */
-#toast { position: fixed; left: 50%; bottom: 75px; transform: translate(-50%, 20px); opacity: 0; background: var(--gold); color: #030712; font-family: "Rajdhani", sans-serif; font-weight: 800; font-size: 12px; letter-spacing: 0.05em; padding: 8px 16px; border-radius: 8px; z-index: 99; transition: all 0.2s; pointer-events: none; box-shadow: 0 5px 20px rgba(245,158,11,0.4); text-align: center; max-width: 90%; }
+#toast { position: fixed; left: 50%; bottom: 30px; transform: translate(-50%, 20px); opacity: 0; background: var(--gold); color: #030712; font-family: "Rajdhani", sans-serif; font-weight: 800; font-size: 12px; padding: 8px 16px; border-radius: 8px; z-index: 99; transition: all 0.2s; pointer-events: none; box-shadow: 0 4px 20px rgba(245,158,11,0.4); text-align: center; max-width: 90%; }
 #toast.on { opacity: 1; transform: translate(-50%, 0); }
 </style>
 
 <script>
-// TELEGRAM MINI APP INTEGRATION
 var tg = window.Telegram && Telegram.WebApp;
 if (tg) {
-  try {
-    tg.ready();
-    tg.expand();
-    tg.setHeaderColor("#030712");
-    tg.setBackgroundColor("#030712");
-  } catch(e){}
+  try { tg.ready(); tg.expand(); tg.setHeaderColor("#030712"); tg.setBackgroundColor("#030712"); } catch(e){}
 }
 
-// HAPTICS ENGINE
 function triggerHaptic(type) {
   try {
     if (tg && tg.HapticFeedback) {
@@ -91,7 +83,6 @@ function triggerHaptic(type) {
   } catch(e){}
 }
 
-// WEB AUDIO SYNTHESIZER
 var audioCtx = null;
 function sfx(type) {
   try {
@@ -101,7 +92,6 @@ function sfx(type) {
     var gain = audioCtx.createGain();
     osc.connect(gain); gain.connect(audioCtx.destination);
     var now = audioCtx.currentTime;
-
     if (type === 'click') {
       osc.type = 'sine'; osc.frequency.setValueAtTime(600, now); osc.frequency.exponentialRampToValueAtTime(200, now + 0.05);
       gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
@@ -118,15 +108,14 @@ function sfx(type) {
   } catch(e){}
 }
 
-// GAME STATE
 var G = {
   level: 1,
   title: "State Governor",
-  reserves: 1500, // ₦ Billion
-  approval: 65,   // %
-  security: 70,   // %
-  infra: 60,      // %
-  naira: 80,      // %
+  reserves: 1500,
+  approval: 65,
+  security: 70,
+  infra: 60,
+  naira: 80,
   turn: 1,
   maxTurn: 12,
   unlockedLevel: 1
@@ -144,10 +133,6 @@ var CRISES = [
   { t: "Power Grid Collapse", d: "National grid trips, dropping generation output below 1,500 Megawatts.", o: [
     { l: "Emergency Solar Capital Injection", c: 250, a: 6, s: 0, i: 16, n: 0, m: "Grid rehabilitated. Industrial output steady." },
     { l: "Rortion Regional Distribution", c: 20, a: -8, s: 0, i: -5, n: 0, m: "Rolling blackouts enforced nationwide." }
-  ]},
-  { t: "Forex Speculation Pressure", d: "Parallel market currency speculators attempt to crash the Naira exchange rate.", o: [
-    { l: "Inject $1B CBN Liquidity Support", c: 300, a: 5, s: 2, i: 2, n: 14, m: "Speculators crushed. Naira stabilizes." },
-    { l: "Impose Strict Capital Controls", c: 50, a: -6, s: 4, i: 0, n: 5, m: "Forex market restricted." }
   ]}
 ];
 
@@ -161,13 +146,8 @@ function toast(msg) {
   setTimeout(function() { t.classList.remove("on"); }, 2500);
 }
 
-// TELEGRAM SEEDLESS CLOUD SAVE
 function saveProgress() {
-  try {
-    if (tg && tg.CloudStorage) {
-      tg.CloudStorage.setItem("jagaban_state", JSON.stringify(G));
-    }
-  } catch(e){}
+  try { if (tg && tg.CloudStorage) tg.CloudStorage.setItem("jagaban_state", JSON.stringify(G)); } catch(e){}
 }
 
 function loadProgress() {
@@ -184,25 +164,18 @@ function loadProgress() {
 }
 
 function updateLevelButtons() {
-  var btn2 = $("btn-lvl-2");
-  var btn3 = $("btn-lvl-3");
-  if (btn2) {
-    if (G.unlockedLevel >= 2) {
-      btn2.style.opacity = "1";
-      btn2.querySelector("span").textContent = "UNLOCKED";
-    }
+  if (G.unlockedLevel >= 2 && $("btn-lvl-2")) {
+    $("btn-lvl-2").style.opacity = "1";
+    $("btn-lvl-2").querySelector("span").textContent = "UNLOCKED";
   }
-  if (btn3) {
-    if (G.unlockedLevel >= 3) {
-      btn3.style.opacity = "1";
-      btn3.querySelector("span").textContent = "MAX TIER";
-    }
+  if (G.unlockedLevel >= 3 && $("btn-lvl-3")) {
+    $("btn-lvl-3").style.opacity = "1";
+    $("btn-lvl-3").querySelector("span").textContent = "MAX TIER";
   }
 }
 
 function updateHUD() {
   if ($("hud-reserves")) $("hud-reserves").textContent = "₦" + G.reserves + "B";
-  
   function setVal(id, val) {
     var el = $(id);
     if (el) {
@@ -211,7 +184,6 @@ function updateHUD() {
       if (val < 25) box.classList.add("warn"); else box.classList.remove("warn");
     }
   }
-  
   setVal("hud-appr", G.approval);
   setVal("hud-sec", G.security);
   setVal("hud-inf", G.infra);
@@ -219,15 +191,11 @@ function updateHUD() {
   if ($("hud-lvl")) $("hud-lvl").textContent = "LVL " + G.level + " · " + G.title + " (M" + G.turn + "/12)";
 
   if (G.approval <= 0 || G.security <= 0 || G.naira <= 0) {
-    sfx("warn");
-    triggerHaptic("warn");
-    endGame(false);
+    sfx("warn"); triggerHaptic("warn"); endGame(false);
   } else if (G.turn > G.maxTurn) {
-    sfx("cash");
-    triggerHaptic("ok");
+    sfx("cash"); triggerHaptic("ok");
     if (G.level < 3) G.unlockedLevel = Math.max(G.unlockedLevel, G.level + 1);
-    saveProgress();
-    endGame(true);
+    saveProgress(); endGame(true);
   } else {
     saveProgress();
   }
@@ -236,8 +204,7 @@ function updateHUD() {
 function startCampaign(lvl) {
   if (lvl > G.unlockedLevel) {
     toast("Complete previous tier to unlock!");
-    sfx("warn");
-    triggerHaptic("warn");
+    sfx("warn"); triggerHaptic("warn");
     return;
   }
   G.level = lvl;
@@ -247,15 +214,10 @@ function startCampaign(lvl) {
   $("s-select").classList.add("hidden");
   $("s-end").classList.add("hidden");
   $("s-main").classList.remove("hidden");
-  sfx("click");
-  triggerHaptic();
+  sfx("click"); triggerHaptic();
   updateHUD();
   
-  // FIX: Allow DOM layout to compute container width/height before Three.js boots up
-  setTimeout(function() {
-    init3D();
-  }, 50);
-  
+  setTimeout(function() { init3D(); }, 100);
   loadCrisis();
 }
 
@@ -263,7 +225,6 @@ function loadCrisis() {
   var crisis = CRISES[Math.floor(Math.random() * CRISES.length)];
   if ($("cr-title")) $("cr-title").textContent = crisis.t;
   if ($("cr-desc")) $("cr-desc").textContent = crisis.d;
-  
   var optsContainer = $("cr-opts");
   if (optsContainer) {
     optsContainer.innerHTML = crisis.o.map(function(o, k) {
@@ -278,23 +239,18 @@ function execCrisis(k) {
   var crisisTitle = $("cr-title").textContent;
   var crisis = CRISES.find(function(c) { return c.t === crisisTitle; }) || CRISES[0];
   var o = crisis.o[k];
-
   if (G.reserves < o.c) {
     toast("Insufficient Federal Reserves!");
-    sfx("warn");
-    triggerHaptic("warn");
+    sfx("warn"); triggerHaptic("warn");
     return;
   }
-
   G.reserves -= o.c;
   G.approval = Math.min(100, Math.max(0, G.approval + o.a));
   G.security = Math.min(100, Math.max(0, G.security + o.s));
   G.infra = Math.min(100, Math.max(0, G.infra + o.i));
   G.naira = Math.min(100, Math.max(0, G.naira + o.n));
   G.turn++;
-
-  sfx(o.a >= 0 ? "cash" : "warn");
-  triggerHaptic(o.a >= 0 ? "ok" : "warn");
+  sfx(o.a >= 0 ? "cash" : "warn"); triggerHaptic(o.a >= 0 ? "ok" : "warn");
   toast(o.m);
   updateHUD();
   if (G.turn <= G.maxTurn) loadCrisis();
@@ -303,8 +259,7 @@ function execCrisis(k) {
 function execAction(cost, apprFx, secFx, infFx, naiFx, msg) {
   if (G.reserves < cost) {
     toast("Insufficient Federal Reserves!");
-    sfx("warn");
-    triggerHaptic("warn");
+    sfx("warn"); triggerHaptic("warn");
     return;
   }
   G.reserves -= cost;
@@ -312,9 +267,7 @@ function execAction(cost, apprFx, secFx, infFx, naiFx, msg) {
   G.security = Math.min(100, Math.max(0, G.security + secFx));
   G.infra = Math.min(100, Math.max(0, G.infra + infFx));
   G.naira = Math.min(100, Math.max(0, G.naira + naiFx));
-  
-  sfx("cash");
-  triggerHaptic("ok");
+  sfx("cash"); triggerHaptic("ok");
   toast(msg);
   updateHUD();
 }
@@ -327,79 +280,71 @@ function switchTab(t) {
   for (var i = 0; i < btns.length; i++) {
     btns[i].classList.toggle("on", ["war","tre","inf","sec","wel"][i] === t);
   }
-  sfx("click");
-  triggerHaptic();
+  sfx("click"); triggerHaptic();
 }
 
 function endGame(win) {
   $("s-main").classList.add("hidden");
   $("s-end").classList.remove("hidden");
   var score = Math.round((G.approval + G.security + G.infra + G.naira) / 4);
-  
   if ($("e-title")) $("e-title").textContent = win ? "2027 ELECTION VICTORY!" : "ADMINISTRATION COLLAPSED";
-  if ($("e-desc")) $("e-desc").textContent = win ? "You successfully steered the federation through 12 operational cycles with distinction." : "Severe governance failure triggered impeachment and political exile.";
+  if ($("e-desc")) $("e-desc").textContent = win ? "Successfully steered federation through 12 cycles." : "Governance failure triggered impeachment.";
   if ($("e-score")) $("e-score").textContent = score + " PTS";
 }
 
 function shareScore() {
   var score = Math.round((G.approval + G.security + G.infra + G.naira) / 4);
-  var text = encodeURIComponent("👑 I scored " + score + " PTS as " + G.title + " in Jagaban Sim: Aso Rock Command! Can you govern Nigeria better than me?");
-  if (tg && tg.openTelegramLink) {
-    tg.openTelegramLink("https://t.me/share/url?url=" + text);
-  } else {
-    window.open("https://t.me/share/url?url=" + text);
-  }
+  var text = encodeURIComponent("👑 I scored " + score + " PTS as " + G.title + " in Jagaban Sim: Aso Rock Command!");
+  if (tg && tg.openTelegramLink) tg.openTelegramLink("https://t.me/share/url?url=" + text);
+  else window.open("https://t.me/share/url?url=" + text);
 }
 
-// THREE.JS 3D CONVOY PATROL ENGINE
-var scene, camera, renderer, carMesh, roadGrid;
+// 3D MOTORCADE ENGINE
+var scene, camera, renderer, carMesh, roadGrid, isInit3D = false;
 function init3D() {
   var container = $("stage-3d");
-  if (!container || renderer) return;
-  var w = container.clientWidth, h = container.clientHeight;
+  if (!container) return;
+  var w = container.clientWidth || 360, h = container.clientHeight || 140;
 
-  scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x030712, 0.05);
+  if (!isInit3D) {
+    scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x030712, 0.05);
 
-  camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 100);
-  camera.position.set(0, 2.5, 5);
-  camera.lookAt(0, 0, 0);
+    camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 100);
+    camera.position.set(0, 2.5, 5);
+    camera.lookAt(0, 0, 0);
 
-  renderer = new THREE.WebGLRenderer({ canvas: $("canvas3d"), antialias: true });
-  renderer.setSize(w, h);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer = new THREE.WebGLRenderer({ canvas: $("canvas3d"), antialias: true });
+    renderer.setSize(w, h);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-  var ambient = new THREE.AmbientLight(0xffffff, 0.7);
-  scene.add(ambient);
+    var ambient = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(ambient);
 
-  var pLight = new THREE.PointLight(0xf59e0b, 2, 10);
-  pLight.position.set(0, 4, 2);
-  scene.add(pLight);
+    var pLight = new THREE.PointLight(0xf59e0b, 2, 10);
+    pLight.position.set(0, 4, 2);
+    scene.add(pLight);
 
-  roadGrid = new THREE.GridHelper(40, 20, 0xf59e0b, 0x1e293b);
-  roadGrid.position.y = -0.5;
-  scene.add(roadGrid);
+    roadGrid = new THREE.GridHelper(40, 20, 0xf59e0b, 0x1e293b);
+    roadGrid.position.y = -0.5;
+    scene.add(roadGrid);
 
-  var carGeo = new THREE.BoxGeometry(1.2, 0.7, 2.2);
-  var carMat = new THREE.MeshPhongMaterial({ color: 0x0d1322, specular: 0xf59e0b, shininess: 80 });
-  carMesh = new THREE.Mesh(carGeo, carMat);
-  scene.add(carMesh);
+    var carGeo = new THREE.BoxGeometry(1.2, 0.7, 2.2);
+    var carMat = new THREE.MeshPhongMaterial({ color: 0x0d1322, specular: 0xf59e0b, shininess: 80 });
+    carMesh = new THREE.Mesh(carGeo, carMat);
+    scene.add(carMesh);
 
-  var sirenGeo = new THREE.BoxGeometry(0.6, 0.1, 0.2);
-  var sirenMat = new THREE.MeshBasicMaterial({ color: 0xef4444 });
-  var siren = new THREE.Mesh(sirenGeo, sirenMat);
-  siren.position.set(0, 0.4, 0);
-  carMesh.add(siren);
+    var sirenGeo = new THREE.BoxGeometry(0.6, 0.1, 0.2);
+    var sirenMat = new THREE.MeshBasicMaterial({ color: 0xef4444 });
+    var siren = new THREE.Mesh(sirenGeo, sirenMat);
+    siren.position.set(0, 0.4, 0);
+    carMesh.add(siren);
 
-  window.addEventListener("resize", function() {
-    if (!container || !renderer) return;
-    var nw = container.clientWidth, nh = container.clientHeight;
-    camera.aspect = nw / nh;
-    camera.updateProjectionMatrix();
-    renderer.setSize(nw, nh);
-  });
-
-  animate3D();
+    isInit3D = true;
+    animate3D();
+  } else {
+    renderer.setSize(w, h);
+  }
 }
 
 function animate3D() {
@@ -407,19 +352,16 @@ function animate3D() {
   if (roadGrid) roadGrid.position.z += 0.12;
   if (roadGrid && roadGrid.position.z > 2) roadGrid.position.z = 0;
   if (carMesh) carMesh.rotation.y = Math.sin(Date.now() * 0.003) * 0.04;
-  renderer.render(scene, camera);
+  if (renderer && scene && camera) renderer.render(scene, camera);
 }
 
-window.addEventListener("DOMContentLoaded", function() {
-  loadProgress();
-});
+window.addEventListener("DOMContentLoaded", loadProgress);
 </script>
 </head>
 <body>
 
 <div id="app">
-
-  <!-- LEVEL SELECT SCREEN -->
+  <!-- LEVEL SELECT -->
   <div id="s-select" class="scr">
     <div class="panel">
       <h1>ASO ROCK EXECUTIVE SELECTION</h1>
@@ -441,11 +383,9 @@ window.addEventListener("DOMContentLoaded", function() {
     </div>
   </div>
 
-  <!-- MAIN DEMOCRATIC COMMAND SUITE -->
+  <!-- MAIN GAME SUITE -->
   <div id="s-main" class="scr hidden">
-    
-    <!-- NATIONAL VITAL SIGNS -->
-    <div class="panel" style="padding:6px;">
+    <div class="panel" style="padding:8px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
         <span id="hud-lvl" style="font-family:'Rajdhani';font-size:11px;color:var(--gold);font-weight:800;"></span>
         <span style="font-family:'Rajdhani';font-size:11px;color:var(--neon);font-weight:800;">RESERVES: <span id="hud-reserves"></span></span>
@@ -459,15 +399,13 @@ window.addEventListener("DOMContentLoaded", function() {
       </div>
     </div>
 
-    <!-- 3D CONVOY PATROL VIEWPORT -->
+    <!-- 3D MOTORCADE VIEWPORT -->
     <div id="stage-3d">
       <canvas id="canvas3d"></canvas>
       <div class="stage-tag">📍 PRESIDENTIAL MOTORCADE PATROL</div>
     </div>
 
-    <!-- MULTI-TAB COMMAND PANEL -->
-    <div class="tab-panel panel">
-      
+    <div class="panel tab-panel">
       <!-- TAB 1: WAR ROOM -->
       <div id="t-war">
         <h2 id="cr-title">NATIONAL CRISIS WAR ROOM</h2>
@@ -479,7 +417,32 @@ window.addEventListener("DOMContentLoaded", function() {
       <div id="t-tre" class="hidden">
         <h2>TREASURY & MACROECONOMICS</h2>
         <p>Manage federal accounts, Forex reserves, and IMF facility draws.</p>
-        <button class="opt-btn" onclick="execAction(0, -4, 0, 0, 10, 'Injected $500M Forex into FX Window (+10 Naira Stability)')">
+        <button class="opt-btn" onclick="execAction(0, -4, 0, 0, 10, 'Injected $500M Forex into FX Window (+10 Naira)')">
           <div><b>Inject $500M FX Liquidity</b><span>Stabilizes Naira value</span></div>
         </button>
-        <button class="opt-btn" onclick="execAction(300, 10, 0, 0, -5, 'Draw Federal Reserve Al
+        <button class="opt-btn" onclick="execAction(300, 10, 0, 0, -5, 'Draw Federal Reserve Allocation (+₦300B)')">
+          <div><b>Draw Sovereign Allocation</b><span>Increases reserves by ₦300B</span></div>
+        </button>
+      </div>
+
+      <!-- TAB 3: INFRASTRUCTURE -->
+      <div id="t-inf" class="hidden">
+        <h2>INFRASTRUCTURE & POWER GRID</h2>
+        <p>Upgrade power stations and national transportation corridors.</p>
+        <button class="opt-btn" onclick="execAction(300, 8, 0, 15, 0, 'Expanded Power Grid output by 2,000MW (+15 Infra)')">
+          <div><b>Deploy 2,000MW Solar Grid</b><span>Costs ₦300B · Boosts Industrial Output</span></div>
+        </button>
+        <button class="opt-btn" onclick="execAction(150, 5, 0, 10, 0, 'Rehabilitated Interstate Carriageways (+10 Infra)')">
+          <div><b>Fund Interstate Highway Corridor</b><span>Costs ₦150B · Improves Supply Chains</span></div>
+        </button>
+      </div>
+
+      <!-- TAB 4: SECURITY -->
+      <div id="t-sec" class="hidden">
+        <h2>DEFENSE & INTELLIGENCE</h2>
+        <p>Fund counter-insurgency operations and border security.</p>
+        <button class="opt-btn" onclick="execAction(150, 4, 15, 0, 0, 'Procured Tactical Surveillance Drones (+15 Security)')">
+          <div><b>Procure Aerial Drones</b><span>Costs ₦150B · Boosts Security Index</span></div>
+        </button>
+        <button class="opt-btn" onclick="execAction(80, -2, 10, 0, 0, 'Fortified Border Taskforce (+10 Security)')">
+          <div><b>Fortify Border Command</b><span>Costs ₦8
