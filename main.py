@@ -1,14 +1,13 @@
 import os
 import json
 import threading
-import random
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
 # --- 🔐 BOT CONFIGURATION ---
-TOKEN = "8575512512:AAEYG6ln7zhCRSqCI6UE9TIwT63T1"  # Ensure your complete Bot Token is active here
-WEBAPP_URL = "https://naecdigigraph.github.io/jagaban-bot-/" # GitHub Pages Mini App Host URL
+TOKEN = "8575512512:AAEYG6ln7zhCRSqCI6UE9TIwT63T17F0JtU"
+WEBAPP_URL = "https://naecdigigraph.github.io/jagaban-bot-/"
 
 bot = telebot.TeleBot(TOKEN)
 DATA_FILE = "players.json"
@@ -166,4 +165,3 @@ def handle_action(call):
 if __name__ == '__main__':
     print("Jagaban Sim Core Backend Running...")
     bot.infinity_polling()
-
