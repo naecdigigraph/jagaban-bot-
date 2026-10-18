@@ -1,92 +1,73 @@
 import os
-from http.server import HTTPServer, BaseHTTPRequestHandler
 import threading
+import json
+from http.server import HTTPServer, BaseHTTPRequestHandler
+import telebot
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
-# Dummy HTTP server to satisfy Render's health check requirement
+TOKEN = "8575512512:AAEYG6ln7zhCRSqCI6UE9TIwT63T1..."  # Make sure your full bot token is inside these quotes!
+
+bot = telebot.TeleBot(TOKEN)
+
+# In-memory Game State Database
+players = {}
+
+def get_player(chat_id):
+    if chat_id not in players:
+        players[chat_id] = {
+            "vault": 50000000,      # ₦50M starting funds
+            "loyalty": 75,          # 75% Godfather loyalty
+            "support": 60,          # 60% Public support
+            "influence": 20,        # 20 Influence points
+            "turn": 1,              # Turn/Month index
+            "title": "Grassroots Mobilizer"
+        }
+    return players[chat_id]
+
+# --- 🌐 HTTP Health Check Server for Render Free Tier ---
 class HealthCheckHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
+        self.send_header("Content-type", "text/html")
         self.end_headers()
-        self.wfile.write(b"Jagaban Bot is live!")
+        self.wfile.write(b"<h1>Jagaban Sim Server Active</h1>")
 
 def run_web_server():
     port = int(os.environ.get("PORT", 10000))
     server = HTTPServer(('0.0.0.0', port), HealthCheckHandler)
     server.serve_forever()
 
-# Start the web server in a background thread so it doesn't block the bot
 threading.Thread(target=run_web_server, daemon=True).start()
-import telebot
-import time
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-TOKEN = "8575512512:AAEYG6ln7zhCRSqCI6UE9TIwT63T17F0JtU"
-
-bot = telebot.TeleBot(TOKEN)
-players = {}
-
+# --- 🎮 Telegram Bot Handlers ---
 @bot.message_handler(commands=['start'])
 def start_game(message):
     chat_id = message.chat.id
-    players[chat_id] = {
-        "vault": 50000000,
-        "loyalty": 75,
-        "support": 60,
-        "turn": 1
-    }
-    send_dashboard(chat_id, "🏛️ *WELCOME TO JAGABAN SIM: KINGMAKER!*\n\nYou are the ultimate political Godfather. Your goal is to navigate party politics, secure delegates, and maintain your empire across Nigeria without getting betrayed or ousted!")
-
-def send_dashboard(chat_id, text_prefix):
-    stats = players[chat_id]
-    msg = f"{text_prefix}\n\n"
-    msg += f"📊 *YOUR POLITICAL DASHBOARD (Turn {stats['turn']})*\n"
-    msg += f"------------------------------------\n"
-    msg += f"💰 Party Vault: *₦{stats['vault']:,}*\n"
-    msg += f"🤝 Network Loyalty: *{stats['loyalty']}%*\n"
-    msg += f"🗳️ Public Support: *{stats['support']}%*\n"
-    msg += f"------------------------------------\n\n"
-    msg += f"🚨 *CRISIS AT THE PRIMARIES!*\n"
-    msg += f"Your key gubernatorial candidate in Lagos is facing a rebellion from disgruntled delegates claiming party favoritism!"
-
+    player = get_player(chat_id)
+    
     markup = InlineKeyboardMarkup()
-    markup.row(InlineKeyboardButton("💵 Pay off delegates (₦15M)", callback_data="choice_pay"))
-    markup.row(InlineKeyboardButton("👑 Replace with loyalist", callback_data="choice_replace"))
-    markup.row(InlineKeyboardButton("📢 Deploy PR & Rallies (₦5M)", callback_data="choice_pr"))
+    
+    # Web App button for our upcoming visual frontend
+    web_app_btn = InlineKeyboardButton(
+        text="🏛️ Open Political War Room", 
+        web_app=WebAppInfo(url="https://naecdigigraph.github.io/jagaban-bot-/")
+    )
+    markup.add(web_app_btn)
 
-    bot.send_message(chat_id, msg, parse_mode="Markdown", reply_markup=markup)
+    welcome_text = (
+        f"👑 *WELCOME TO JAGABAN SIM: KINGMAKER*\n\n"
+        f"You step into the shoes of the ultimate political strategist.\n\n"
+        f"📊 *Current Status (Turn {player['turn']}):*\n"
+        f"💰 *Vault:* ₦{player['vault']:,}\n"
+        f"👑 *Godfather Loyalty:* {player['loyalty']}%\n"
+        f"📈 *Public Support:* {player['support']}%\n"
+        f"⚡ *Influence Points:* {player['influence']}\n\n"
+        f"Tap below to open your interactive **Political War Room**!"
+    )
+    
+    bot.send_message(chat_id, welcome_text, parse_mode="Markdown", reply_markup=markup)
 
-@bot.callback_query_handler(func=lambda call: True)
-def handle_choice(call):
-    chat_id = call.message.chat.id
-    if chat_id not in players:
-        bot.answer_callback_query(call.id, "Please restart with /start")
-        return
-
-    stats = players[chat_id]
-    stats['turn'] += 1
-
-    if call.data == "choice_pay":
-        stats['vault'] -= 15000000
-        stats['loyalty'] += 10
-        response = "✅ *Result:* You settled the delegates with ₦15M. Loyalty rose, but your vault took a hit!"
-    elif call.data == "choice_replace":
-        stats['loyalty'] -= 15
-        stats['support'] -= 10
-        response = "⚠️ *Result:* You replaced the candidate! Disgruntled members defected to the opposition."
-    elif call.data == "choice_pr":
-        stats['vault'] -= 5000000
-        stats['support'] += 15
-        response = "🔥 *Result:* Your PR campaign went viral! Public enthusiasm jumped!"
-
-    bot.answer_callback_query(call.id, "Decision recorded!")
-    send_dashboard(chat_id, response)
-
-# Resilient polling loop that automatically reconnects if network drops
-while True:
-    try:
-        print("⚡ Jagaban Sim Bot is running live...")
-        bot.infinity_polling(timeout=10, long_polling_timeout=5)
-    except Exception as e:
-        print(f"Network error caught: {e}. Retrying in 5 seconds...")
-        time.sleep(5)
+if __name__ == '__main__':
+    print("Jagaban Sim Bot is running...")
+    bot.infinity_polling()
 
