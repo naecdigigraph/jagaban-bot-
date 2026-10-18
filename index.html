@@ -2,293 +2,479 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Jagaban Sim: 2027 Tactical Command</title>
-<script>
-window.addEventListener("error", function(e) {
-  var b = document.getElementById("errbar");
-  if (!b) {
-    b = document.createElement("div");
-    b.id = "errbar";
-    b.style.cssText = "position:fixed;left:0;right:0;top:0;z-index:99;background:#ef4444;color:#fff;font:11px/1.3 monospace;padding:6px 10px";
-    (document.body || document.documentElement).appendChild(b);
-  }
-  b.textContent = "TACTICAL ERROR: " + (e.message || "unknown");
-});
-</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Jagaban Sim: Aso Rock Command</title>
+<!-- Telegram Mini App Native SDK -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700;800&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<!-- Three.js 3D Engine Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;800&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
 <style>
-:root { --bg:#070a10; --panel:#0d1322; --border:#1e293b; --gold:#f59e0b; --neon:#10b981; --red:#ef4444; --text:#f8fafc; --dim:#64748b; }
+:root {
+  --bg: #030712;
+  --panel: rgba(13, 19, 34, 0.92);
+  --border: rgba(245, 158, 11, 0.4);
+  --gold: #f59e0b;
+  --neon: #10b981;
+  --red: #ef4444;
+  --text: #f8fafc;
+  --dim: #64748b;
+}
+
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; margin: 0; background: var(--bg); color: var(--text); font-family: "Inter", system-ui, sans-serif; user-select: none; overflow: hidden; }
+html, body { height: 100%; margin: 0; background: var(--bg); color: var(--text); font-family: "Inter", sans-serif; user-select: none; overflow: hidden; }
 #app { height: 100dvh; max-width: 480px; margin: auto; padding: env(safe-area-inset-top) 8px env(safe-area-inset-bottom); display: flex; flex-direction: column; gap: 6px; }
 .hidden { display: none !important; }
-.scr { flex: 1; display: flex; flex-direction: column; gap: 8px; min-height: 0; padding: 8px 0; }
-.panel { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); position: relative; overflow: hidden; }
+.scr { flex: 1; display: flex; flex-direction: column; gap: 6px; min-height: 0; padding: 6px 0; }
+
+.panel { background: var(--panel); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 14px; padding: 10px; box-shadow: 0 8px 32px rgba(0,0,0,0.85); position: relative; overflow: hidden; }
 .panel::before { content: ""; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--gold); }
-h1 { font-family: "Rajdhani", sans-serif; font-size: 24px; line-height: 1; margin: 0; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; }
-h2 { font-family: "Rajdhani", sans-serif; font-size: 15px; margin: 0 0 6px; font-weight: 800; color: var(--gold); letter-spacing: 0.05em; text-transform: uppercase; }
-p { margin: 0; font-size: 12px; line-height: 1.4; color: #94a3b8; }
-.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-content: start; flex-shrink: 0; max-height: 70dvh; }
-.card { text-align: left; color: var(--text); background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px; font: inherit; cursor: pointer; transition: all .15s ease; }
-.card:active { transform: scale(0.97); }
-.card:hover { border-color: var(--gold); box-shadow: 0 0 15px rgba(245,158,11,0.2); }
-.card b { display: block; font-family: "Rajdhani", sans-serif; font-size: 16px; color: var(--gold); letter-spacing: 0.03em; }
-.card span { font-size: 11px; color: var(--dim); }
-.btn { width: 100%; border: 0; border-radius: 10px; padding: 12px; font-family: "Rajdhani", sans-serif; font-weight: 800; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; background: var(--gold); color: #070a10; cursor: pointer; box-shadow: 0 4px 15px rgba(245,158,11,0.3); transition: all .1s; }
+h1 { font-family: "Rajdhani", sans-serif; font-size: 22px; margin: 0; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--gold); }
+h2 { font-family: "Rajdhani", sans-serif; font-size: 14px; margin: 0 0 4px; font-weight: 800; color: var(--gold); letter-spacing: 0.05em; text-transform: uppercase; }
+p { margin: 0; font-size: 11px; line-height: 1.35; color: #94a3b8; }
+
+/* NATIONAL VITAL SIGNS BAR */
+.vitals-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-top: 4px; }
+.v-box { background: #000; border: 1px solid var(--border); border-radius: 8px; padding: 4px; text-align: center; }
+.v-box small { font-size: 7px; color: var(--dim); text-transform: uppercase; display: block; font-weight: 700; }
+.v-box div { font-family: "Rajdhani", sans-serif; font-weight: 800; font-size: 11px; color: var(--neon); }
+.v-box.warn div { color: var(--red); animation: pulse 0.7s infinite alternate; }
+@keyframes pulse { from { opacity: 1; } to { opacity: 0.3; } }
+
+/* 3D MOTORCADE VIEWPORT */
+#stage-3d { position: relative; height: 21dvh; min-height: 120px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); background: #000; }
+#canvas3d { width: 100%; height: 100%; display: block; }
+.stage-tag { position: absolute; left: 8px; top: 6px; font-family: "Rajdhani", sans-serif; font-size: 10px; color: var(--gold); background: rgba(3,7,18,0.85); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); letter-spacing: 0.05em; }
+
+/* TAB CONTROLS */
+.tab-panel { flex: 1; overflow-y: auto; min-height: 0; display: flex; flex-direction: column; gap: 6px; }
+.opt-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: left; padding: 9px 11px; border-radius: 10px; background: #0d1322; border: 1px solid var(--border); color: var(--text); font: inherit; cursor: pointer; margin-top: 4px; transition: all 0.15s ease; }
+.opt-btn:active { transform: scale(0.98); border-color: var(--gold); box-shadow: 0 0 12px rgba(245,158,11,0.3); }
+.opt-btn b { font-family: "Rajdhani", sans-serif; font-size: 13px; color: var(--gold); display: block; letter-spacing: 0.02em; }
+.opt-btn span { font-size: 10px; color: var(--dim); }
+
+.btn { width: 100%; border: 0; border-radius: 10px; padding: 11px; font-family: "Rajdhani", sans-serif; font-weight: 800; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; background: var(--gold); color: #030712; cursor: pointer; box-shadow: 0 4px 15px rgba(245,158,11,0.3); transition: all 0.1s; }
 .btn:active { transform: scale(0.97); }
-.btn:disabled { opacity: 0.3; box-shadow: none; }
 .btn.alt { background: #111827; color: var(--text); border: 1px solid var(--border); box-shadow: none; }
-.meters { display: grid; grid-template-columns: repeat(4,1fr); gap: 5px; }
-.m { background: #030712; border: 1px solid var(--border); border-radius: 10px; padding: 6px; }
-.m small { font-size: 8px; color: var(--dim); text-transform: uppercase; font-weight: 700; display: block; }
-.m div { font-family: "Rajdhani", sans-serif; font-weight: 800; font-size: 13px; }
-.bar { height: 2px; background: #1e293b; border-radius: 2px; margin-top: 4px; overflow: hidden; }
-.bar i { display: block; height: 100%; width: 0; background: var(--neon); transition: width .4s; }
-.m.g .bar i { background: var(--gold); }
-.m.r .bar i { background: var(--red); }
-.ticker-box { display: flex; gap: 6px; align-items: center; overflow: hidden; background: #030712; border-radius: 8px; padding: 5px 8px; border: 1px solid rgba(239,68,68,0.3); }
-.ticker-box em { font-style: normal; background: var(--red); font-size: 8px; font-weight: 800; padding: 2px 5px; border-radius: 3px; letter-spacing: 0.05em; }
-.ticker-box div { white-space: nowrap; font-size: 11px; color: var(--gold); font-family: "Rajdhani", sans-serif; font-weight: 700; animation: tk 22s linear infinite; }
-@keyframes tk { from { transform: translateX(100%); } to { transform: translateX(-140%); } }
-#stage { position: relative; height: 20dvh; min-height: 120px; border-radius: 14px; overflow: hidden; border: 1px solid var(--border); background: #030712; }
-#cv { width: 100%; height: 100%; display: block; }
-#stage .tag { position: absolute; left: 10px; top: 8px; font-family: "Rajdhani", sans-serif; font-size: 10px; color: var(--dim); background: rgba(7,10,16,0.85); padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border); letter-spacing: 0.05em; }
-#stage .tag b { color: var(--gold); }
-#panel { flex: 1; overflow-y: auto; min-height: 0; display: flex; flex-direction: column; gap: 6px; }
-.opt { display: flex; gap: 8px; align-items: center; width: 100%; text-align: left; margin-top: 4px; padding: 10px; border-radius: 10px; background: #111827; border: 1px solid var(--border); color: var(--text); font: inherit; cursor: pointer; transition: border-color .1s; }
-.opt:active { transform: scale(0.98); }
-.opt:hover { border-color: var(--gold); }
-.opt b { background: var(--gold); color: #070a10; border-radius: 6px; min-width: 22px; height: 22px; display: grid; place-items: center; font-family: "Rajdhani", sans-serif; font-size: 12px; font-weight: 800; }
-.opt span { flex: 1; font-size: 12px; font-weight: 600; }
-.opt i { font-style: normal; font-size: 10px; color: var(--dim); text-align: right; max-width: 38%; }
-.row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
-.row small { display: block; color: var(--dim); font-size: 10px; }
-.row .btn { width: auto; padding: 6px 12px; font-size: 12px; }
-nav { display: grid; grid-template-columns: repeat(4,1fr); gap: 5px; }
-nav button { border: 1px solid var(--border); background: var(--panel); color: var(--dim); border-radius: 10px; padding: 8px 0; font-family: "Rajdhani", sans-serif; font-size: 11px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; transition: all .1s; }
-nav button.on { background: var(--gold); color: #070a10; border-color: var(--gold); }
-.pill { display: inline-block; font-size: 9px; font-family: "Rajdhani", sans-serif; font-weight: 800; padding: 2px 8px; border-radius: 20px; background: #111827; border: 1px solid var(--border); color: var(--gold); letter-spacing: 0.08em; text-transform: uppercase; }
-#toast { position: fixed; left: 50%; bottom: calc(80px + env(safe-area-inset-bottom)); transform: translate(-50%,15px); opacity: 0; background: var(--gold); color: #070a10; font-family: "Rajdhani", sans-serif; font-weight: 800; font-size: 12px; letter-spacing: 0.05em; padding: 8px 14px; border-radius: 8px; max-width: 90%; text-align: center; transition: .2s; pointer-events: none; z-index: 9; box-shadow: 0 5px 20px rgba(245,158,11,0.4); }
-#toast.on { opacity: 1; transform: translate(-50%,0); }
+
+nav { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+nav button { border: 1px solid var(--border); background: var(--panel); color: var(--dim); border-radius: 8px; padding: 8px 0; font-family: "Rajdhani", sans-serif; font-size: 9px; font-weight: 800; text-transform: uppercase; cursor: pointer; transition: all 0.15s; }
+nav button.on { background: var(--gold); color: #030712; border-color: var(--gold); }
+
+/* TOAST NOTIFICATIONS */
+#toast { position: fixed; left: 50%; bottom: 75px; transform: translate(-50%, 20px); opacity: 0; background: var(--gold); color: #030712; font-family: "Rajdhani", sans-serif; font-weight: 800; font-size: 12px; letter-spacing: 0.05em; padding: 8px 16px; border-radius: 8px; z-index: 99; transition: all 0.2s; pointer-events: none; box-shadow: 0 5px 20px rgba(245,158,11,0.4); text-align: center; max-width: 90%; }
+#toast.on { opacity: 1; transform: translate(-50%, 0); }
 </style>
-</head>
-<body>
-<div id="app">
 
-<!-- SCREEN 1: THEATER OF OPERATIONS -->
-<div id="s-state" class="scr">
-  <div><span class="pill">2027 Command Protocol</span><h1 style="margin-top:8px">Select Operational Theater</h1><p style="margin-top:4px">Choose your regional stronghold to establish your electoral war chest.</p></div>
-  <div id="state-list" class="grid" style="overflow-y:auto">
-    <button class="card" onclick="pickState(0)"><b>Lagos (South-West)</b><span>₦180M War Chest</span><br><span>Commercial HQ. Federal draws +₦15M.</span></button>
-    <button class="card" onclick="pickState(1)"><b>Kano (North-West)</b><span>₦140M War Chest</span><br><span>Mass voter base. Starts +12 Support.</span></button>
-    <button class="card" onclick="pickState(2)"><b>Rivers (South-South)</b><span>₦160M War Chest</span><br><span>Oil & Marine hub. Federal draws +₦25M.</span></button>
-    <button class="card" onclick="pickState(3)"><b>FCT Abuja</b><span>₦200M War Chest</span><br><span>Seat of power. Rival starts 8 pts weaker.</span></button>
-  </div>
-</div>
-
-<!-- SCREEN 2: OPERATOR DOSSIER -->
-<div id="s-char" class="scr hidden">
-  <div><span class="pill" id="lbl-state"></span><h1 style="margin-top:8px">Select Operator Dossier</h1><p style="margin-top:4px">Adopt a legendary political archetype with unique tactical perks.</p></div>
-  <div id="char-list" style="display:grid;gap:8px;overflow-y:auto">
-    <button class="card" onclick="pickChar(0)"><b>Asiwaju Jagaban</b><span>The Master Strategist</span><br><span>+20 Loyalty. Cabinet costs 25% less.</span></button>
-    <button class="card" onclick="pickChar(1)"><b>Atiku Waziri</b><span>The Financial Titan</span><br><span>+₦60M war chest. Donor banquets pay double.</span></button>
-    <button class="card" onclick="pickChar(2)"><b>Peter Okwute</b><span>The Grassroots Wave</span><br><span>+25 Support. Youth rallies cost zero extra.</span></button>
-  </div>
-  <button class="btn alt" onclick="go('s-state')">← Re-select Theater</button>
-</div>
-
-<!-- SCREEN 3: TACTICAL COMMAND WAR ROOM -->
-<div id="s-game" class="scr hidden" style="padding-top:2px">
-  <div class="panel" style="padding:8px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-      <b id="h-name" style="font-family:'Rajdhani',sans-serif;font-size:14px;color:var(--gold);letter-spacing:0.05em"></b><span class="pill" id="h-turn"></span>
-    </div>
-    <div class="meters">
-      <div class="m g"><small>War Chest</small><div id="v-vault"></div><div class="bar"><i id="b-vault"></i></div></div>
-      <div class="m"><small>Loyalty</small><div id="v-loy"></div><div class="bar"><i id="b-loy"></i></div></div>
-      <div class="m"><small>Support</small><div id="v-sup"></div><div class="bar"><i id="b-sup"></i></div></div>
-      <div class="m r"><small>Rival Threat</small><div id="v-riv"></div><div class="bar"><i id="b-riv"></i></div></div>
-    </div>
-    <div class="ticker-box" style="margin-top:6px"><em>INTEL</em><div id="ticker"></div></div>
-  </div>
-
-  <div id="stage"><canvas id="cv"></canvas><div class="tag" id="stage-tag"></div><div style="position:absolute;right:8px;bottom:6px;font-family:'Rajdhani',sans-serif;font-size:9px;color:var(--dim);letter-spacing:0.05em">TACTICAL RADAR v2.7</div></div>
-
-  <div id="panel" class="panel">
-    <div id="t-war">
-      <h2 id="ev-t"></h2><p id="ev-d"></p><div id="ev-o"></div>
-    </div>
-    <div id="t-cab" class="hidden">
-      <h2>Cabinet Command</h2><p style="margin-bottom:6px">Deploy trusted appointees for passive monthly operational advantages.</p>
-      <div class="row"><div>Chief of Staff<small>+4 Loyalty monthly</small></div><button class="btn" id="hire-cos" onclick="hire('cos',25)">Deploy</button></div>
-      <div class="row"><div>Media Czar<small>+4 Support monthly</small></div><button class="btn" id="hire-media" onclick="hire('media',20)">Deploy</button></div>
-      <div class="row"><div>Spymaster<small>Rival grows 2.5 pts slower</small></div><button class="btn" id="hire-spy" onclick="hire('spy',30)">Deploy</button></div>
-    </div>
-    <div id="t-tre" class="hidden">
-      <h2>Treasury & Logistics</h2><p style="margin-bottom:6px">Secure federation allocations and high-net-worth donor banquets.</p>
-      <div class="row"><div>Federal Allocation (FAAC)<small id="faac-sub">+₦50M</small></div><button class="btn" id="b-faac" onclick="faac()">Secure</button></div>
-      <div class="row"><div>Donor Banquet<small>+₦40M war chest, -5 Support</small></div><button class="btn" id="b-dinner" onclick="dinner()">Host</button></div>
-    </div>
-    <div id="t-mus" class="hidden">
-      <h2>Tactical Vibes</h2>
-      <p style="margin-bottom:8px">2027 Campaign Afrobeat stream active:</p>
-      <div style="border-radius:10px;overflow:hidden;border:1px solid var(--border);background:#030712;">
-        <iframe style="border-radius:8px" src="https://open.spotify.com/embed/playlist/2ngnJwSHudTItet6G7f9tz?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-      </div>
-      <div class="row" style="margin-top:6px"><div>Tactical Audio & Haptics</div><button class="btn alt" onclick="sfx('horn'); hp('ok')">Test Horn</button></div>
-    </div>
-  </div>
-
-  <nav id="nav">
-    <button class="on" onclick="tab('war')">Operations</button>
-    <button onclick="tab('cab')">Cabinet</button>
-    <button onclick="tab('tre')">Treasury</button>
-    <button onclick="tab('mus')">Vibes</button>
-  </nav>
-</div>
-
-<!-- SCREEN 4: DEBRIEF & VIRAL SHARE -->
-<div id="s-end" class="scr hidden" style="justify-content:center;text-align:center">
-  <span class="pill" style="align-self:center" id="e-pill"></span>
-  <h1 id="e-title" style="margin-top:4px"></h1><p id="e-text" style="margin:6px 0 14px"></p>
-  <div class="panel"><div class="row"><span>Your Dynasty Score</span><b id="e-you" style="font-family:'Rajdhani',sans-serif;color:var(--gold)"></b></div><div class="row" style="border:0"><span>Rival Coalition Score</span><b id="e-riv" style="font-family:'Rajdhani',sans-serif;color:var(--red)"></b></div><div class="sub" id="e-best" style="margin-top:4px"></div></div>
-  <button class="btn" onclick="shareScore()" style="margin-top:6px">📤 Flex Score on Telegram & WhatsApp</button>
-  <button class="btn alt" onclick="go('s-state')" style="margin-top:4px">🔄 Initialize New Campaign</button>
-</div>
-
-</div>
-<div id="toast"></div>
-
-<!-- JAVASCRIPT LOGIC DIRECTLY IN SCRIPT TAG -->
 <script>
-const MAX_TURN = 12, MONTHS = ["Jan '27","Feb '27","Mar '27","Apr '27","May '27","Jun '27","Jul '27","Aug '27","Sep '27","Oct '27","Nov '27","Dec '27"];
-const $ = function(id) { return document.getElementById(id); };
-const tg = window.Telegram && Telegram.WebApp;
+// TELEGRAM MINI APP INTEGRATION
+var tg = window.Telegram && Telegram.WebApp;
 if (tg) {
-  tg.ready();
-  tg.expand();
   try {
-    tg.setHeaderColor("#070a10");
-    tg.setBackgroundColor("#070a10");
-  } catch (e) {}
+    tg.ready();
+    tg.expand();
+    tg.setHeaderColor("#030712");
+    tg.setBackgroundColor("#030712");
+  } catch(e){}
 }
 
-function hp(t) {
+// HAPTICS ENGINE
+function triggerHaptic(type) {
   try {
     if (tg && tg.HapticFeedback) {
-      if (t === "ok" || t === "bad") {
-        tg.HapticFeedback.notificationOccurred(t === "ok" ? "success" : "error");
-      } else {
-        tg.HapticFeedback.impactOccurred("light");
-      }
+      if (type === "ok") tg.HapticFeedback.notificationOccurred("success");
+      else if (type === "warn") tg.HapticFeedback.notificationOccurred("error");
+      else tg.HapticFeedback.impactOccurred("light");
     }
-  } catch (e) {}
+  } catch(e){}
 }
 
+// WEB AUDIO SYNTHESIZER
 var audioCtx = null;
 function sfx(type) {
   try {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+    if (audioCtx.state === "suspended") audioCtx.resume();
     var osc = audioCtx.createOscillator();
     var gain = audioCtx.createGain();
     osc.connect(gain); gain.connect(audioCtx.destination);
     var now = audioCtx.currentTime;
+
     if (type === 'click') {
-      osc.type = 'sine'; osc.frequency.setValueAtTime(600, now); osc.frequency.exponentialRampToValueAtTime(250, now + 0.06);
-      gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.06);
-      osc.start(now); osc.stop(now + 0.06);
+      osc.type = 'sine'; osc.frequency.setValueAtTime(600, now); osc.frequency.exponentialRampToValueAtTime(200, now + 0.05);
+      gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
+      osc.start(now); osc.stop(now + 0.05);
     } else if (type === 'cash') {
-      osc.type = 'triangle'; osc.frequency.setValueAtTime(900, now); osc.frequency.setValueAtTime(1400, now + 0.1);
-      gain.gain.setValueAtTime(0.15, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.18);
-      osc.start(now); osc.stop(now + 0.18);
-    } else if (type === 'horn') {
-      osc.type = 'sawtooth'; osc.frequency.setValueAtTime(180, now); osc.frequency.setValueAtTime(260, now + 0.18);
-      gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
-      osc.start(now); osc.stop(now + 0.35);
-    } else if (type === 'bad') {
-      osc.type = 'sawtooth'; osc.frequency.setValueAtTime(160, now); osc.frequency.setValueAtTime(90, now + 0.2);
-      gain.gain.setValueAtTime(0.15, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
-      osc.start(now); osc.stop(now + 0.2);
+      osc.type = 'triangle'; osc.frequency.setValueAtTime(800, now); osc.frequency.setValueAtTime(1400, now + 0.09);
+      gain.gain.setValueAtTime(0.15, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.16);
+      osc.start(now); osc.stop(now + 0.16);
+    } else if (type === 'warn') {
+      osc.type = 'sawtooth'; osc.frequency.setValueAtTime(160, now); osc.frequency.setValueAtTime(80, now + 0.22);
+      gain.gain.setValueAtTime(0.18, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.22);
+      osc.start(now); osc.stop(now + 0.22);
     }
-  } catch (e) {}
+  } catch(e){}
 }
 
-var STATES = [
-  { n: "Lagos", v: 180, tip: "Commercial powerhouse. Federal allocations +₦15M.", f: 60 },
-  { n: "Kano", v: 140, tip: "Massive voter bloc. Starts with +12 Support.", s: 12 },
-  { n: "Rivers", v: 160, tip: "Oil & Marine revenues. Federal draws +₦25M.", f: 70 },
-  { n: "FCT Abuja", v: 200, tip: "Seat of power. Opposition starts 8 points weaker.", r: -8 }
+// GAME STATE
+var G = {
+  level: 1,
+  title: "State Governor",
+  reserves: 1500, // ₦ Billion
+  approval: 65,   // %
+  security: 70,   // %
+  infra: 60,      // %
+  naira: 80,      // %
+  turn: 1,
+  maxTurn: 12,
+  unlockedLevel: 1
+};
+
+var CRISES = [
+  { t: "Labor Strike Crisis", d: "National Union of Workers threatens total industrial shutdown over minimum wage adjustments.", o: [
+    { l: "Disburse ₦200B Relief Fund", c: 200, a: 12, s: 0, i: 0, n: -4, m: "Relief disbursed. Public approval surging!" },
+    { l: "Deploy Taskforce to Guard Grid", c: 50, a: -10, s: 8, i: 0, n: 2, m: "Taskforce deployed. Security secured." }
+  ]},
+  { t: "Fuel Subsidy Volatility", d: "Global crude prices surge. Local fuel queues expanding across major state capitals.", o: [
+    { l: "Release Emergency Buffer Stock", c: 150, a: 10, s: 0, i: 5, n: -5, m: "Palliatives deployed. Queues dissipating." },
+    { l: "Dereference & Save Reserves", c: 0, a: -14, s: -5, i: 0, n: 8, m: "Forex reserves protected. Protests mounted." }
+  ]},
+  { t: "Power Grid Collapse", d: "National grid trips, dropping generation output below 1,500 Megawatts.", o: [
+    { l: "Emergency Solar Capital Injection", c: 250, a: 6, s: 0, i: 16, n: 0, m: "Grid rehabilitated. Industrial output steady." },
+    { l: "Rortion Regional Distribution", c: 20, a: -8, s: 0, i: -5, n: 0, m: "Rolling blackouts enforced nationwide." }
+  ]},
+  { t: "Forex Speculation Pressure", d: "Parallel market currency speculators attempt to crash the Naira exchange rate.", o: [
+    { l: "Inject $1B CBN Liquidity Support", c: 300, a: 5, s: 2, i: 2, n: 14, m: "Speculators crushed. Naira stabilizes." },
+    { l: "Impose Strict Capital Controls", c: 50, a: -6, s: 4, i: 0, n: 5, m: "Forex market restricted." }
+  ]}
 ];
 
-var CHARS = [
-  { n: "Asiwaju Jagaban", a: "The Master Strategist", d: "+20 Loyalty. Cabinet costs 25% less.", l: 20, disc: .75 },
-  { n: "Atiku Waziri", a: "The Financial Titan", d: "+₦60M war chest. Donor banquets pay double.", v: 60, din: 2 },
-  { n: "Peter Okwute", a: "The Grassroots Wave", d: "+25 Support. Youth rallies cost zero extra.", s: 25, rally: 1 }
-];
+function $(id) { return document.getElementById(id); }
 
-var EVENTS = [
-  { t: "Party Primaries Deadlock", d: "Ward delegates reject consensus and demand immediate cash settlements or risk defection.", o: [
-    { l: "Disburse heavy ward logistics", fx: { v: -30, l: 18, i: 12 }, m: "Delegates secured." },
-    { l: "Deploy youth movement mobilization", fx: { v: -12, s: 18 }, m: "Grassroots enthusiasm surged.", rally: 1 },
-    { l: "Threaten party disciplinary action", fx: { l: -18, r: 4 }, m: "Severe party friction." } ] },
-  { t: "Fuel Subsidy & Inflation Spike", d: "Pump price adjustments spark public outcry. Opposition handles weaponize the protest.", o: [
-    { l: "Roll out emergency transport palliative", fx: { v: -35, s: 15 }, m: "Commuters pacified." },
-    { l: "Defend economic reforms on TV", fx: { s: -6, l: 10, r: 2 }, m: "Base held firm." },
-    { l: "Organize solidarity counter-march", fx: { v: -15, i: 10, s: 5 }, m: "Streets stabilized." } ] },
-  { t: "WhatsApp Audio Leak", d: "A secret voice note of your campaign strategy is trending #1 on social media.", o: [
-    { l: "Commission forensic deepfake audit", fx: { v: -22, s: 8, i: 8 }, m: "Audio exposed as doctored." },
-    { l: "Launch counter-scandal attack", fx: { v: -18, r: -5, s: -4 }, m: "Mutual mudslinging." },
-    { l: "Sacrifice campaign director", fx: { l: -12, s: 10 }, m: "Public appeased." } ] },
-  { t: "Traditional Council Summons", d: "Obas, Emirs and Eze demand a closed-door briefing on your 2027 blueprint.", o: [
-    { l: "Pay lavish royal homage", fx: { v: -20, s: 12, l: 6 }, m: "Royal blessing secured." },
-    { l: "Send high-powered proxy delegation", fx: { v: -8, s: 5 }, m: "Polite acceptance." },
-    { l: "Decline due to schedule", fx: { s: -10, r: 4 }, m: "Palace doors closed." } ] }
-];
+function toast(msg) {
+  var t = $("toast");
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add("on");
+  setTimeout(function() { t.classList.remove("on"); }, 2500);
+}
 
-var NEWS = [
-  "INEC releases strict guidelines for 2027 general elections campaign finance",
-  "Naira stabilizes as FAAC disburses record federation account revenue",
-  "Youth voter registration surges by 300% across major urban centers",
-  "Political heavyweights hold secret 4-hour meeting in Abuja behind closed doors"
-];
+// TELEGRAM SEEDLESS CLOUD SAVE
+function saveProgress() {
+  try {
+    if (tg && tg.CloudStorage) {
+      tg.CloudStorage.setItem("jagaban_state", JSON.stringify(G));
+    }
+  } catch(e){}
+}
 
-var S = {}, lock = false, seen = [];
+function loadProgress() {
+  try {
+    if (tg && tg.CloudStorage) {
+      tg.CloudStorage.getItem("jagaban_state", function(err, val) {
+        if (!err && val) {
+          G = Object.assign(G, JSON.parse(val));
+          updateLevelButtons();
+        }
+      });
+    }
+  } catch(e){}
+}
 
-function go(id) {
-  ["s-state", "s-char", "s-game", "s-end"].forEach(function(x) {
-    var el = $(x);
-    if (el) el.classList.toggle("hidden", x !== id);
-  });
-  hp();
+function updateLevelButtons() {
+  var btn2 = $("btn-lvl-2");
+  var btn3 = $("btn-lvl-3");
+  if (btn2) {
+    if (G.unlockedLevel >= 2) {
+      btn2.style.opacity = "1";
+      btn2.querySelector("span").textContent = "UNLOCKED";
+    }
+  }
+  if (btn3) {
+    if (G.unlockedLevel >= 3) {
+      btn3.style.opacity = "1";
+      btn3.querySelector("span").textContent = "MAX TIER";
+    }
+  }
+}
+
+function updateHUD() {
+  if ($("hud-reserves")) $("hud-reserves").textContent = "₦" + G.reserves + "B";
+  
+  function setVal(id, val) {
+    var el = $(id);
+    if (el) {
+      el.textContent = Math.round(val) + "%";
+      var box = el.parentElement;
+      if (val < 25) box.classList.add("warn"); else box.classList.remove("warn");
+    }
+  }
+  
+  setVal("hud-appr", G.approval);
+  setVal("hud-sec", G.security);
+  setVal("hud-inf", G.infra);
+  setVal("hud-nai", G.naira);
+  if ($("hud-lvl")) $("hud-lvl").textContent = "LVL " + G.level + " · " + G.title + " (M" + G.turn + "/12)";
+
+  if (G.approval <= 0 || G.security <= 0 || G.naira <= 0) {
+    sfx("warn");
+    triggerHaptic("warn");
+    endGame(false);
+  } else if (G.turn > G.maxTurn) {
+    sfx("cash");
+    triggerHaptic("ok");
+    if (G.level < 3) G.unlockedLevel = Math.max(G.unlockedLevel, G.level + 1);
+    saveProgress();
+    endGame(true);
+  } else {
+    saveProgress();
+  }
+}
+
+function startCampaign(lvl) {
+  if (lvl > G.unlockedLevel) {
+    toast("Complete previous tier to unlock!");
+    sfx("warn");
+    triggerHaptic("warn");
+    return;
+  }
+  G.level = lvl;
+  G.title = lvl === 1 ? "State Governor" : (lvl === 2 ? "Finance Minister" : "Commander-in-Chief");
+  G.reserves = lvl * 1000;
+  G.turn = 1;
+  $("s-select").classList.add("hidden");
+  $("s-end").classList.add("hidden");
+  $("s-main").classList.remove("hidden");
   sfx("click");
+  triggerHaptic();
+  updateHUD();
+  init3D();
+  loadCrisis();
 }
 
-function pickState(i) {
-  S = { st: STATES[i], vault: STATES[i].v * 1e6, loy: 65, sup: 60 + (STATES[i].s || 0), inf: 25, riv: 45, turn: 1, cab: {}, faac: false, din: false, ev: null };
-  $("lbl-state").textContent = STATES[i].n + " Sector";
-  go("s-char");
+function loadCrisis() {
+  var crisis = CRISES[Math.floor(Math.random() * CRISES.length)];
+  if ($("cr-title")) $("cr-title").textContent = crisis.t;
+  if ($("cr-desc")) $("cr-desc").textContent = crisis.d;
+  
+  var optsContainer = $("cr-opts");
+  if (optsContainer) {
+    optsContainer.innerHTML = crisis.o.map(function(o, k) {
+      return '<button class="opt-btn" onclick="execCrisis(' + k + ')">' +
+             '<div><b>' + (k + 1) + '. ' + o.l + '</b><span>Costs ₦' + o.c + 'B · Strategic Impact</span></div>' +
+             '</button>';
+    }).join("");
+  }
 }
 
-function pickChar(i) {
-  var c = CHARS[i];
-  S.ch = c;
-  S.loy += c.l || 0;
-  S.sup += c.s || 0;
-  S.vault += (c.v || 0) * 1e6;
-  S.riv += S.st.r || 0;
-  seen = [];
-  lock = false;
-  $("h-name").textContent = c.n;
-  $("stage-tag").innerHTML = "<b>" + S.st.n + " Base</b> · " + c.a;
-  go("s-game");
-  tab("war");
-  nextEvent();
-  hud();
-  sfx("horn");
-  hp("ok");
+function execCrisis(k) {
+  var crisisTitle = $("cr-title").textContent;
+  var crisis = CRISES.find(function(c) { return c.t === crisisTitle; }) || CRISES[0];
+  var o = crisis.o[k];
+
+  if (G.reserves < o.c) {
+    toast("Insufficient Federal Reserves!");
+    sfx("warn");
+    triggerHaptic("warn");
+    return;
+  }
+
+  G.reserves -= o.c;
+  G.approval = Math.min(100, Math.max(0, G.approval + o.a));
+  G.security = Math.min(100, Math.max(0, G.security + o.s));
+  G.infra = Math.min(100, Math.max(0, G.infra + o.i));
+  G.naira = Math.min(100, Math.max(0, G.naira + o.n));
+  G.turn++;
+
+  sfx(o.a >= 0 ? "cash" : "warn");
+  triggerHaptic(o.a >= 0 ? "ok" : "warn");
+  toast(o.m);
+  updateHUD();
+  if (G.turn <= G.maxTurn) loadCrisis();
 }
 
-function clamp
+function execAction(cost, apprFx, secFx, infFx, naiFx, msg) {
+  if (G.reserves < cost) {
+    toast("Insufficient Federal Reserves!");
+    sfx("warn");
+    triggerHaptic("warn");
+    return;
+  }
+  G.reserves -= cost;
+  G.approval = Math.min(100, Math.max(0, G.approval + apprFx));
+  G.security = Math.min(100, Math.max(0, G.security + secFx));
+  G.infra = Math.min(100, Math.max(0, G.infra + infFx));
+  G.naira = Math.min(100, Math.max(0, G.naira + naiFx));
+  
+  sfx("cash");
+  triggerHaptic("ok");
+  toast(msg);
+  updateHUD();
+}
+
+function switchTab(t) {
+  ["war", "tre", "inf", "sec", "wel"].forEach(function(x) {
+    if ($("t-" + x)) $("t-" + x).classList.toggle("hidden", x !== t);
+  });
+  var btns = $("main-nav") ? $("main-nav").children : [];
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].classList.toggle("on", ["war","tre","inf","sec","wel"][i] === t);
+  }
+  sfx("click");
+  triggerHaptic();
+}
+
+function endGame(win) {
+  $("s-main").classList.add("hidden");
+  $("s-end").classList.remove("hidden");
+  var score = Math.round((G.approval + G.security + G.infra + G.naira) / 4);
+  
+  if ($("e-title")) $("e-title").textContent = win ? "2027 ELECTION VICTORY!" : "ADMINISTRATION COLLAPSED";
+  if ($("e-desc")) $("e-desc").textContent = win ? "You successfully steered the federation through 12 operational cycles with distinction." : "Severe governance failure triggered impeachment and political exile.";
+  if ($("e-score")) $("e-score").textContent = score + " PTS";
+}
+
+function shareScore() {
+  var score = Math.round((G.approval + G.security + G.infra + G.naira) / 4);
+  var text = encodeURIComponent("👑 I scored " + score + " PTS as " + G.title + " in Jagaban Sim: Aso Rock Command! Can you govern Nigeria better than me?");
+  if (tg && tg.openTelegramLink) {
+    tg.openTelegramLink("https://t.me/share/url?url=" + text);
+  } else {
+    window.open("https://t.me/share/url?url=" + text);
+  }
+}
+
+// THREE.JS 3D CONVOY PATROL ENGINE
+var scene, camera, renderer, carMesh, roadGrid;
+function init3D() {
+  var container = $("stage-3d");
+  if (!container || renderer) return;
+  var w = container.clientWidth, h = container.clientHeight;
+
+  scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x030712, 0.05);
+
+  camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 100);
+  camera.position.set(0, 2.5, 5);
+  camera.lookAt(0, 0, 0);
+
+  renderer = new THREE.WebGLRenderer({ canvas: $("canvas3d"), antialias: true });
+  renderer.setSize(w, h);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  var ambient = new THREE.AmbientLight(0xffffff, 0.7);
+  scene.add(ambient);
+
+  var pLight = new THREE.PointLight(0xf59e0b, 2, 10);
+  pLight.position.set(0, 4, 2);
+  scene.add(pLight);
+
+  roadGrid = new THREE.GridHelper(40, 20, 0xf59e0b, 0x1e293b);
+  roadGrid.position.y = -0.5;
+  scene.add(roadGrid);
+
+  var carGeo = new THREE.BoxGeometry(1.2, 0.7, 2.2);
+  var carMat = new THREE.MeshPhongMaterial({ color: 0x0d1322, specular: 0xf59e0b, shininess: 80 });
+  carMesh = new THREE.Mesh(carGeo, carMat);
+  scene.add(carMesh);
+
+  var sirenGeo = new THREE.BoxGeometry(0.6, 0.1, 0.2);
+  var sirenMat = new THREE.MeshBasicMaterial({ color: 0xef4444 });
+  var siren = new THREE.Mesh(sirenGeo, sirenMat);
+  siren.position.set(0, 0.4, 0);
+  carMesh.add(siren);
+
+  window.addEventListener("resize", function() {
+    if (!container || !renderer) return;
+    var nw = container.clientWidth, nh = container.clientHeight;
+    camera.aspect = nw / nh;
+    camera.updateProjectionMatrix();
+    renderer.setSize(nw, nh);
+  });
+
+  animate3D();
+}
+
+function animate3D() {
+  requestAnimationFrame(animate3D);
+  if (roadGrid) roadGrid.position.z += 0.12;
+  if (roadGrid && roadGrid.position.z > 2) roadGrid.position.z = 0;
+  if (carMesh) carMesh.rotation.y = Math.sin(Date.now() * 0.003) * 0.04;
+  renderer.render(scene, camera);
+}
+
+window.addEventListener("DOMContentLoaded", function() {
+  loadProgress();
+});
+</script>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- LEVEL SELECT SCREEN -->
+  <div id="s-select" class="scr">
+    <div class="panel">
+      <h1>ASO ROCK EXECUTIVE SELECTION</h1>
+      <p>Control Nigeria's economy, security, and infrastructure reserves across multiple democratic tiers.</p>
+    </div>
+    <div style="display:grid;gap:6px;">
+      <button class="opt-btn" onclick="startCampaign(1)">
+        <div><b>LEVEL 1: STATE GOVERNOR</b><span>Manage State FAAC & Local Infrastructure</span></div>
+        <span style="color:var(--gold);font-family:'Rajdhani';font-weight:800;">UNLOCKED</span>
+      </button>
+      <button id="btn-lvl-2" class="opt-btn" onclick="startCampaign(2)" style="opacity:0.7;">
+        <div><b>LEVEL 2: FINANCE MINISTER</b><span>Control Federal Budget, Inflation & Debt</span></div>
+        <span style="color:var(--dim);font-family:'Rajdhani';font-weight:800;">LOCKED</span>
+      </button>
+      <button id="btn-lvl-3" class="opt-btn" onclick="startCampaign(3)" style="opacity:0.7;">
+        <div><b>LEVEL 3: COMMANDER-IN-CHIEF</b><span>Full Aso Rock Executive & Military Suite</span></div>
+        <span style="color:var(--dim);font-family:'Rajdhani';font-weight:800;">LOCKED</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN DEMOCRATIC COMMAND SUITE -->
+  <div id="s-main" class="scr hidden">
+    
+    <!-- NATIONAL VITAL SIGNS -->
+    <div class="panel" style="padding:6px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <span id="hud-lvl" style="font-family:'Rajdhani';font-size:11px;color:var(--gold);font-weight:800;"></span>
+        <span style="font-family:'Rajdhani';font-size:11px;color:var(--neon);font-weight:800;">RESERVES: <span id="hud-reserves"></span></span>
+      </div>
+      <div class="vitals-grid">
+        <div class="v-box"><small>Approval</small><div id="hud-appr">65%</div></div>
+        <div class="v-box"><small>Security</small><div id="hud-sec">70%</div></div>
+        <div class="v-box"><small>Infra</small><div id="hud-inf">60%</div></div>
+        <div class="v-box"><small>Naira</small><div id="hud-nai">80%</div></div>
+        <div class="v-box"><small>FAAC</small><div>ACTIVE</div></div>
+      </div>
+    </div>
+
+    <!-- 3D CONVOY PATROL VIEWPORT -->
+    <div id="stage-3d">
+      <canvas id="canvas3d"></canvas>
+      <div class="stage-tag">📍 PRESIDENTIAL MOTORCADE PATROL</div>
+    </div>
+
+    <!-- MULTI-TAB COMMAND PANEL -->
+    <div class="tab-panel panel">
+      
+      <!-- TAB 1: WAR ROOM -->
+      <div id="t-war">
+        <h2 id="cr-title">NATIONAL CRISIS WAR ROOM</h2>
+        <p id="cr-desc">Labor union announces nationwide strike over minimum wage adjustments.</p>
+        <div id="cr-opts"></div>
+      </div>
+
+      <!-- TAB 2: TREASURY -->
+      <div id="t-tre" class="hidden">
+        <h2>TREASURY & MACROECONOMICS</h2>
+        <p>Manage federal accounts, Forex reserves, and IMF facility draws.</p>
+        <button class="opt-btn" onclick="execAction(0, -4, 0, 0, 10, 'Injected $500M Forex into FX Window (+10 Naira Stability)')">
+          <div><b>Inject $500M FX Liquidity</b><span>Stabilizes Naira value</span></div>
+        </button>
+        <button class="opt-btn" onclick="execAction(300, 10, 0, 0, -5, 'Draw Federal Reserve Al
