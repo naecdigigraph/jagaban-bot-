@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Jagaban Sim: Political War Room</title>
+  <!-- Telegram Web App SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: #0d1117;
+      color: #f0f6fc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      touch-action: manipulation;
+    }
+    .glass-card {
+      background: rgba(22, 27, 34, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 215, 0, 0.15);
+      border-radius: 16px;
+    }
+    .glow-gold {
+      box-shadow: 0 0 15px rgba(234, 179, 8, 0.25);
+    }
+    .glow-green {
+      box-shadow: 0 0 15px rgba(34, 197, 94, 0.25);
+    }
+    .btn-press:active {
+      transform: scale(0.96);
+      transition: transform 0.1s ease;
+    }
+  </style>
+</head>
+<body class="p-4 pb-12 select-none">
+
+  <!-- 👑 HEADER & RANK -->
+  <div class="glass-card p-4 mb-4 text-center border-amber-500/30">
+    <div class="inline-block px-3 py-1 bg-amber-500/20 text-amber-400 rounded-full text-xs font-bold tracking-wider mb-1 uppercase">
+      👑 <span id="player-rank">Grassroots Mobilizer</span>
+    </div>
+    <h1 class="text-2xl font-black text-amber-400 tracking-wide uppercase">War Room Dashboard</h1>
+    <p class="text-xs text-gray-400">Tactical Political Operations • Month <span id="player-turn">1</span></p>
+  </div>
+
+  <!-- 📊 RESOURCE METRICS GRID -->
+  <div class="grid grid-cols-2 gap-3 mb-4">
+    <!-- Vault -->
+    <div class="glass-card p-3 glow-green">
+      <div class="text-xs text-gray-400 font-semibold uppercase">Party Vault</div>
+      <div class="text-xl font-bold text-green-400 mt-1" id="val-vault">₦50,000,000</div>
+      <div class="w-full bg-gray-700 h-1.5 rounded-full mt-2 overflow-hidden">
+        <div class="bg-green-500 h-full rounded-full" style="width: 80%"></div>
+      </div>
+    </div>
+
+    <!-- Loyalty -->
+    <div class="glass-card p-3 glow-gold">
+      <div class="text-xs text-gray-400 font-semibold uppercase">Godfather Loyalty</div>
+      <div class="text-xl font-bold text-amber-400 mt-1"><span id="val-loyalty">75</span>%</div>
+      <div class="w-full bg-gray-700 h-1.5 rounded-full mt-2 overflow-hidden">
+        <div id="bar-loyalty" class="bg-amber-500 h-full rounded-full" style="width: 75%"></div>
+      </div>
+    </div>
+
+    <!-- Public Support -->
+    <div class="glass-card p-3">
+      <div class="text-xs text-gray-400 font-semibold uppercase">Public Support</div>
+      <div class="text-xl font-bold text-blue-400 mt-1"><span id="val-support">60</span>%</div>
+      <div class="w-full bg-gray-700 h-1.5 rounded-full mt-2 overflow-hidden">
+        <div id="bar-support" class="bg-blue-500 h-full rounded-full" style="width: 60%"></div>
+      </div>
+    </div>
+
+    <!-- Influence -->
+    <div class="glass-card p-3">
+      <div class="text-xs text-gray-400 font-semibold uppercase">Influence PTS</div>
+      <div class="text-xl font-bold text-purple-400 mt-1" id="val-influence">20 PTS</div>
+      <div class="w-full bg-gray-700 h-1.5 rounded-full mt-2 overflow-hidden">
+        <div class="bg-purple-500 h-full rounded-full" style="width: 40%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🗺️ GEOPOLITICAL REGION DEPLOYMENT -->
+  <div class="glass-card p-4 mb-4">
+    <h2 class="text-sm font-bold text-amber-400 uppercase tracking-wider mb-2">🗺️ Strategic Geopolitical Zones</h2>
+    <div class="grid grid-cols-2 gap-2 text-xs">
+      <button onclick="deployZone('Lagos / SW')" class="btn-press bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 p-2.5 rounded-lg text-left font-semibold">
+        📍 South West<br><span class="text-[10px] text-gray-400">High Influence Zone</span>
+      </button>
+      <button onclick="deployZone('Abuja / NC')" class="btn-press bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-300 p-2.5 rounded-lg text-left font-semibold">
+        🏛️ Federal Capital<br><span class="text-[10px] text-gray-400">Legislative Lobby</span>
+      </button>
+      <button onclick="deployZone('Kano / NW')" class="btn-press bg-green-500/10 hover:bg-green-500/20 border border-green-500/30 text-green-300 p-2.5 rounded-lg text-left font-semibold">
+        👥 North West<br><span class="text-[10px] text-gray-400">Mass Voter Bloc</span>
+      </button>
+      <button onclick="deployZone('Delta / SS')" class="btn-press bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 p-2.5 rounded-lg text-left font-semibold">
+        🛢️ South South<br><span class="text-[10px] text-gray-400">Economic Hub</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 🚨 CRISIS ACTION CARD -->
+  <div class="glass-card p-4 mb-4 border-red-500/30">
+    <div class="flex items-center gap-2 mb-2">
+      <span class="animate-ping inline-flex h-2.5 w-2.5 rounded-full bg-red-400 opacity-75"></span>
+      <h2 class="text-sm font-bold text-red-400 uppercase tracking-wide" id="event-title">🚨 CRISIS AT THE PRIMARIES</h2>
+    </div>
+    <p class="text-xs text-gray-300 mb-4 leading-relaxed" id="event-desc">
+      Your key gubernatorial candidate faces rebellion from disgruntled delegates claiming party favoritism!
+    </p>
+
+    <div class="space-y-2">
+      <button onclick="triggerAction('pay')" class="btn-press w-full py-3 px-4 bg-gradient-to-r from-amber-600 to-amber-500 text-black font-extrabold rounded-xl shadow-lg text-sm flex justify-between items-center">
+        <span>💸 Pay Off Delegates</span>
+        <span class="text-xs bg-black/20 px-2 py-0.5 rounded">-₦15M</span>
+      </button>
+      <button onclick="triggerAction('pr')" class="btn-press w-full py-3 px-4 bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white font-bold rounded-xl text-sm flex justify-between items-center">
+        <span>🗣️ Deploy PR Campaign</span>
+        <span class="text-xs bg-black/40 px-2 py-0.5 rounded text-gray-300">-₦5M</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Initialize Telegram WebApp SDK
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.expand();
+      tg.MainButton.setText("CLOSE WAR ROOM").hide();
+    }
+
+    // Interactive Demo Functions
+    function triggerAction(type) {
+      if (tg) tg.HapticFeedback.impactOccurred('medium');
+      if (type === 'pay') {
+        alert("💸 ₦15M transferred! Delegates pacified (+10 Loyalty).");
+      } else {
+        alert("🗣️ PR campaign launched! Popularity surged (+15 Support).");
+      }
+    }
+
+    function deployZone(zone) {
+      if (tg) tg.HapticFeedback.impactOccurred('light');
+      alert("📡 Machinery deployed to " + zone + "!");
+    }
+  </script>
+</body>
+</html>
+
