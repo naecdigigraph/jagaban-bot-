@@ -250,7 +250,12 @@ function startCampaign(lvl) {
   sfx("click");
   triggerHaptic();
   updateHUD();
-  init3D();
+  
+  // FIX: Allow DOM layout to compute container width/height before Three.js boots up
+  setTimeout(function() {
+    init3D();
+  }, 50);
+  
   loadCrisis();
 }
 
